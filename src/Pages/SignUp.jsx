@@ -10,6 +10,7 @@ const SignUp = () => {
   // const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const validate = () => {
     if (!name.trim()) return 'Full name is required'
@@ -78,13 +79,23 @@ const SignUp = () => {
 
             <label className="block mb-2 mt-4">
               <span className="text-sm font-medium mb-1 block">Password</span>
+              <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-400"
               />
+              <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600 hover:text-pink-500"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                  {/* <img src={search} className="h-5 w-5" alt="" /> */}
+                </button>
+              </div>
             </label>
 
             {/* <label className="block mb-2 mt-4">
