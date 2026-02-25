@@ -6,7 +6,12 @@ import AuthLayout from "./Layouts/AuthLayout";
 import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
 import NotFound from "./pages/NotFound";
-import { UserContextProvider } from "./userContext";
+import { UserContextProvider } from "./UserContext";
+import Account from "./Pages/Account";
+import MyBookings from "./Pages/MyBookings";
+import MyAccommodations from "./Pages/MyAccommodations";
+import AccountLayout from "./Layouts/AccountLayout";
+// import NewPlace from "./Pages/NewPlace";
 
 function App() {
   return (
@@ -16,6 +21,14 @@ function App() {
           {/* Main website layout */}
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
+            <Route path="account" element={<AccountLayout />}>
+              <Route index element={<Account />} />
+              <Route path="bookings" element={<MyBookings />} />
+              <Route path="places" element={<MyAccommodations />}/>
+              <Route path="places/:action?" element={<MyAccommodations />} />
+                {/* <Route path="new" element={<NewPlace />} /> */}
+              {/* </Route> */}
+            </Route>
             {/* <Route path="" element={</>} /> */}
           </Route>
 

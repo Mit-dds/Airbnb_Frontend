@@ -5,6 +5,7 @@ export const UserContext = createContext({});
 
 export function UserContextProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -21,17 +22,16 @@ export function UserContextProvider({ children }) {
           withCredentials: true,
         });
         setUser(data);
-        // console.log(data+"data");
+        setReady(true);
       } catch (err) {
         setUser(null);
-        // console.log(err+"user not login");
       }
     }
     fetchUser();
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, ready }}>
       {children}
     </UserContext.Provider>
   );

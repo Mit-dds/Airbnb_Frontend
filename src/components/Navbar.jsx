@@ -4,7 +4,7 @@ import hamburger from "../assets/images/hamburger.png";
 import userpic from "../assets/images/user_icon.png";
 import search from "../assets/images/search.png";
 import { Link } from "react-router-dom";
-import { UserContext } from "../userContext";
+import { UserContext } from "../UserContext.jsx";
 
 const Navbar = () => {
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -112,16 +112,12 @@ const Navbar = () => {
                       >
                         Log In
                       </Link>
+                      <hr className="my-1" />
                     </>
                   ) : (
-                    <Link
-                      to="/auth/signin"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Log Out
-                    </Link>
+                    <div>
+                    </div>
                   )}
-                  <hr className="my-1" />
                   <a
                     href="#"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
