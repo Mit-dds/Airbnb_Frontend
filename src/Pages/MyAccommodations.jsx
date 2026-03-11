@@ -1,9 +1,66 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import add from "../assets/images/add.png";
+import upload from "../assets/images/add_photo.png";
+import wifi from "../assets/images/wifi.png";
+import parking from "../assets/images/parking.png";
+import pool from "../assets/images/pool.png";
+import gym from "../assets/images/gym.png";
+import tv from "../assets/images/tv.png";
+import pets from "../assets/images/pets.png";
 
 const MyAccommodations = () => {
   const { action } = useParams();
+  const [title, setTitle] = useState("");
+  const [address, setAddress] = useState("");
+  const [photoLink, setPhotoLink] = useState("");
+  const [addPhoto, setAddPhoto] = useState([]);
+  const [description, setDescription] = useState("");
+  const [selectedPerks, setSelectedPerks] = useState([]);
+  const [extraInfo, setExtraInfo] = useState("");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [maxGuests, setMaxGuests] = useState(1);
+
+  function inputHandler(text){
+    return(
+      <h2 className="text-2xl mt-4">{text}</h2>
+    );
+  }
+
+  function inputDescription(text){
+    return(
+      <p className="text-2xl mt-4">{text}</p>
+    );
+  }
+
+  function preInput(header, description){
+    return(
+      <>
+        {inputHandler(header)}
+        {inputDescription(description)}
+      </>
+    )
+  }
+
+  async function addPhotoByLink(e){
+    e.preventDefault();
+    const {data:filename} = await axios.post('/upload-by-link', {link: photoLink})
+    setAddPhoto(prev => {
+      return [...prev, filename];
+    });
+    setPhotoLink('');
+  }
+
+
+  const perks = [
+  { name: "Wifi", logo: wifi },
+  { name: "Parking", logo: parking },
+  { name: "Pool", logo: pool },
+  { name: "Gym", logo: gym },
+  { name: "Tv", logo: tv },
+  { name: "Pets Allowed", logo: pets },
+];
 
   if (action !== "new") {
     return (
@@ -25,9 +82,10 @@ const MyAccommodations = () => {
         <h1 className="text-center text-2xl font-semibold my-10">
           Add New Place
         </h1>
-        <div className="flex justify-center align-middle max-w-2xl mx-auto">
-          <form className="max-w-4xl mx-auto p-8 border border-gray-300 bg-white rounded-4xl shadow-lg space-y-6">
+        <div className="flex justify-center align-middle max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
+          <form className=" w-full mx-auto p-8 border border-gray-300 bg-white rounded-4xl shadow-lg space-y-6">
             {/* Title */}
+            {/* {preInput('Title', 'Title for your place.')} */}
             <div className="flex flex-col space-y-2">
               <label className="text-sm font-semibold text-gray-700">
                 Title
@@ -35,6 +93,8 @@ const MyAccommodations = () => {
               <input
                 type="text"
                 placeholder="Title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -47,12 +107,14 @@ const MyAccommodations = () => {
               <input
                 type="text"
                 placeholder="Address"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
 
             {/* Photos */}
-            <div className="flex flex-col space-y-2">
+            {/* <div className="flex flex-col space-y-2">
               <label className="text-sm font-semibold text-gray-700">
                 Photos
               </label>
@@ -60,12 +122,42 @@ const MyAccommodations = () => {
                 type="file"
                 multiple
                 accept=".jpg, .jpeg, .png, .image/jpeg, image/png"
-                className="p-2 border text-[#b1b09c] border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 file:mr-4 file:py-2 file:px-4 
-                 file:rounded-lg file:border-0 
-                 file:text-sm file:font-semibold 
-                 file:bg-rose-50 file:text-rose-500 file:cursor-pointer  
-                 hover:file:bg-rose-100 "
+                className="p-2 border text-[#b1b09c] border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold  file:bg-rose-50 file:text-rose-500 file:cursor-pointer hover:file:bg-rose-100 "
               />
+            </div> */}
+
+            {/* Photos */}
+            <div className=" relative flex flex-col space-y-2 mb-0 ">
+              <label className="text-sm font-semibold text-gray-700">
+                Photos
+              </label>
+              <input
+                type="text"
+                value={photoLink}
+                onChange={e => setPhotoLink(e.target.value)}
+                className="max-w-4/5 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 "
+                placeholder="Photo URL"
+                id=""
+              />
+              <button onClick={addPhotoByLink} className="absolute cursor-pointer right-0 top-7 px-6 py-3 bg-rose-100 text-rose-500 rounded-xl ">
+                Add Photo
+              </button>
+            </div>
+            <div className="flex flex-row gap-3 items-center">
+              {addPhoto.length > 0 && addPhoto.map(link => (
+                <div>
+                  {link}
+                </div>
+              ))}
+              <button
+                type="button"
+                // value={addPhoto}
+                // onChange={e => setAddPhoto(e.target.value)} 
+                className=" flex flex-col items-center justify-center p-6 rounded-3xl border border-[#dad8c1] text-[#47473f] cursor-pointer "
+              >
+                <img src={upload} className="w-5 h-5 opacity-70 " alt="" />
+                Upload
+              </button>
             </div>
 
             {/* Description */}
@@ -76,6 +168,8 @@ const MyAccommodations = () => {
               <textarea
                 placeholder="Description"
                 rows="4"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -85,11 +179,22 @@ const MyAccommodations = () => {
               <label className="text-sm font-semibold text-gray-700">
                 Perks
               </label>
-              <input
-                type="text"
-                placeholder="Perks"
-                className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
-              />
+              {/* <input type="text" placeholder="Perks" className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300" /> */}
+
+              <div className="grid grid-cols-3 gap-3 mt-2">
+                {perks.map((perk) => {
+                  return (
+                    <label
+                      key={perk}
+                      className="flex items-center cursor-pointer select-none gap-2 group"
+                    >
+                      <input type="checkbox" onChange={e => setSelectedPerks(e.target.value)} value={perk.name} className="h-4 w-4  accent-rose-400 " />
+                      <img src={perk.logo} className="w-5 h-5 opacity-70" alt="" />
+                      <span className="">{perk.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Extra Info */}
@@ -100,6 +205,8 @@ const MyAccommodations = () => {
               <input
                 type="text"
                 placeholder="Extra Info"
+                value={extraInfo}
+                onChange={e => setExtraInfo(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -111,8 +218,10 @@ const MyAccommodations = () => {
                   Check In
                 </label>
                 <input
-                  type="number"
-                  placeholder="14"
+                  type="text"
+                  placeholder="14:00"
+                  value={checkIn}
+                  onChange={e => setCheckIn(e.target.value)}
                   className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
@@ -122,8 +231,10 @@ const MyAccommodations = () => {
                   Check Out
                 </label>
                 <input
-                  type="number"
-                  placeholder="11"
+                  type="text"
+                  placeholder="11:00"
+                  value={checkOut}
+                  onChange={e => setCheckOut(e.target.value)}
                   className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
@@ -133,8 +244,10 @@ const MyAccommodations = () => {
                   Max Guests
                 </label>
                 <input
-                  type="number"
-                  placeholder="2"
+                  type="text"
+                  placeholder="1"
+                  value={maxGuests}
+                  onChange={e => setMaxGuests(e.target.value)}
                   className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
