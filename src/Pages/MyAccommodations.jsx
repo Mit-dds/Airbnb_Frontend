@@ -8,6 +8,7 @@ import pool from "../assets/images/pool.png";
 import gym from "../assets/images/gym.png";
 import tv from "../assets/images/tv.png";
 import pets from "../assets/images/pets.png";
+import axios from "axios";
 
 const MyAccommodations = () => {
   const { action } = useParams();
@@ -22,45 +23,46 @@ const MyAccommodations = () => {
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
 
-  function inputHandler(text){
-    return(
-      <h2 className="text-2xl mt-4">{text}</h2>
-    );
+
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+  function inputHandler(text) {
+    return <h2 className="text-2xl mt-4">{text}</h2>;
   }
 
-  function inputDescription(text){
-    return(
-      <p className="text-2xl mt-4">{text}</p>
-    );
+  function inputDescription(text) {
+    return <p className="text-2xl mt-4">{text}</p>;
   }
 
-  function preInput(header, description){
-    return(
+  function preInput(header, description) {
+    return (
       <>
         {inputHandler(header)}
         {inputDescription(description)}
       </>
-    )
+    );
   }
 
-  async function addPhotoByLink(e){
+  async function addPhotoByLink(e) {
     e.preventDefault();
-    const {data:filename} = await axios.post('/upload-by-link', {link: photoLink})
-    setAddPhoto(prev => {
+    const { data: filename } = await axios.post(`${BASE_URL}/upload-by-link`, {
+      link: photoLink,
+    });
+    setAddPhoto((prev) => {
       return [...prev, filename];
     });
-    setPhotoLink('');
+    setPhotoLink("");
+    console.log("clicked!");
   }
 
-
   const perks = [
-  { name: "Wifi", logo: wifi },
-  { name: "Parking", logo: parking },
-  { name: "Pool", logo: pool },
-  { name: "Gym", logo: gym },
-  { name: "Tv", logo: tv },
-  { name: "Pets Allowed", logo: pets },
-];
+    { name: "Wifi", logo: wifi },
+    { name: "Parking", logo: parking },
+    { name: "Pool", logo: pool },
+    { name: "Gym", logo: gym },
+    { name: "Tv", logo: tv },
+    { name: "Pets Allowed", logo: pets },
+  ];
 
   if (action !== "new") {
     return (
@@ -94,7 +96,7 @@ const MyAccommodations = () => {
                 type="text"
                 placeholder="Title"
                 value={title}
-                onChange={e => setTitle(e.target.value)}
+                onChange={(e) => setTitle(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -108,7 +110,7 @@ const MyAccommodations = () => {
                 type="text"
                 placeholder="Address"
                 value={address}
-                onChange={e => setAddress(e.target.value)}
+                onChange={(e) => setAddress(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -127,33 +129,39 @@ const MyAccommodations = () => {
             </div> */}
 
             {/* Photos */}
-            <div className=" relative flex flex-col space-y-2 mb-0 ">
+            <div className=" relative flex flex-col space-y-2 ">
               <label className="text-sm font-semibold text-gray-700">
                 Photos
               </label>
-              <input
-                type="text"
-                value={photoLink}
-                onChange={e => setPhotoLink(e.target.value)}
-                className="max-w-4/5 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 "
-                placeholder="Photo URL"
-                id=""
-              />
-              <button onClick={addPhotoByLink} className="absolute cursor-pointer right-0 top-7 px-6 py-3 bg-rose-100 text-rose-500 rounded-xl ">
-                Add Photo
-              </button>
+              <div className="flex flex-row gap-5">
+                <input
+                  type="text"
+                  value={photoLink}
+                  onChange={(e) => setPhotoLink(e.target.value)}
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 "
+                  placeholder="Photo URL"
+                  id=""
+                />
+                <button
+                  onClick={addPhotoByLink}
+                  className=" cursor-pointer px-6 w-40 hover:bg-rose-50 bg-rose-100 text-rose-500 rounded-xl "
+                >
+                  Add Photo
+                </button>
+              </div>
             </div>
             <div className="flex flex-row gap-3 items-center">
-              {addPhoto.length > 0 && addPhoto.map(link => (
-                <div>
-                  {link}
-                </div>
-              ))}
+              {addPhoto.length > 0 &&
+                addPhoto.map((link, index) => 
+                  <div key={index}>
+                    <img className="w-[102.5px] h-24 rounded-3xl" src={"http://localhost:4000/uploads/"+link} alt="" />
+                  </div>
+                )}
               <button
                 type="button"
                 // value={addPhoto}
-                // onChange={e => setAddPhoto(e.target.value)} 
-                className=" flex flex-col items-center justify-center p-6 rounded-3xl border border-[#dad8c1] text-[#47473f] cursor-pointer "
+                // onChange={e => setAddPhoto(e.target.value)}
+                className=" flex flex-col items-center justify-center p-[25px] rounded-3xl border border-[#dad8c1] text-[#47473f] cursor-pointer "
               >
                 <img src={upload} className="w-5 h-5 opacity-70 " alt="" />
                 Upload
@@ -169,7 +177,7 @@ const MyAccommodations = () => {
                 placeholder="Description"
                 rows="4"
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -188,8 +196,17 @@ const MyAccommodations = () => {
                       key={perk}
                       className="flex items-center cursor-pointer select-none gap-2 group"
                     >
-                      <input type="checkbox" onChange={e => setSelectedPerks(e.target.value)} value={perk.name} className="h-4 w-4  accent-rose-400 " />
-                      <img src={perk.logo} className="w-5 h-5 opacity-70" alt="" />
+                      <input
+                        type="checkbox"
+                        onChange={(e) => setSelectedPerks(e.target.value)}
+                        value={perk.name}
+                        className="h-4 w-4  accent-rose-400 "
+                      />
+                      <img
+                        src={perk.logo}
+                        className="w-5 h-5 opacity-70"
+                        alt=""
+                      />
                       <span className="">{perk.name}</span>
                     </label>
                   );
@@ -206,7 +223,7 @@ const MyAccommodations = () => {
                 type="text"
                 placeholder="Extra Info"
                 value={extraInfo}
-                onChange={e => setExtraInfo(e.target.value)}
+                onChange={(e) => setExtraInfo(e.target.value)}
                 className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
               />
             </div>
@@ -221,7 +238,7 @@ const MyAccommodations = () => {
                   type="text"
                   placeholder="14:00"
                   value={checkIn}
-                  onChange={e => setCheckIn(e.target.value)}
+                  onChange={(e) => setCheckIn(e.target.value)}
                   className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
@@ -234,7 +251,7 @@ const MyAccommodations = () => {
                   type="text"
                   placeholder="11:00"
                   value={checkOut}
-                  onChange={e => setCheckOut(e.target.value)}
+                  onChange={(e) => setCheckOut(e.target.value)}
                   className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
@@ -247,7 +264,7 @@ const MyAccommodations = () => {
                   type="text"
                   placeholder="1"
                   value={maxGuests}
-                  onChange={e => setMaxGuests(e.target.value)}
+                  onChange={(e) => setMaxGuests(e.target.value)}
                   className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
