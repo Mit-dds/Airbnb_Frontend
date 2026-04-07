@@ -55,6 +55,49 @@ const MyAccommodations = () => {
     console.log("clicked!");
   }
 
+  function handleCbClick(e) {
+    const { checked, name } = e.target;
+    if (checked) {
+      setSelectedPerks([...selectedPerks, name]);
+    } else {
+      setSelectedPerks(selectedPerks.filter((selectedName) => selectedName !== name));
+    }
+  }
+
+  const uploadPhoto = async (e) => {
+    const files = e.target.files;
+    const data = new FormData();
+    // for(const file of files){
+    //   data.set('photos',file);
+    // }
+    for(let i = 0; i < files.length; i++){
+      data.append('photos', files[i]);
+    }
+    try{
+      const res = await axios.post(`${BASE_URL}/upload`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    setAddPhoto((prev) => [...prev, ...res.data]);
+    }
+    catch (err) {
+    console.error(err);
+  }
+    
+    // axios.post(`${BASE_URL}/upload`, data, {
+    //   headers: {'Content-type':'multipart/form-data'}
+    // }).then(response => {
+    //   console.log(response);
+    //   const {data:filenames} = response;
+    //   setAddPhoto(prev => {
+    //     return [...prev, ...filenames];
+    //   });
+    // })
+    // console.log({files});
+  }
+
+
   const perks = [
     { name: "Wifi", logo: wifi },
     { name: "Parking", logo: parking },
@@ -154,18 +197,18 @@ const MyAccommodations = () => {
               {addPhoto.length > 0 &&
                 addPhoto.map((link, index) => 
                   <div key={index}>
-                    <img className="w-[102.5px] h-24 rounded-3xl" src={"http://localhost:4000/uploads/"+link} alt="" />
+                    <img className="w-[102.5px] h-24 rounded-3xl" src={`${BASE_URL}/uploads/`+link} alt="" />
                   </div>
                 )}
-              <button
-                type="button"
+              <label
                 // value={addPhoto}
                 // onChange={e => setAddPhoto(e.target.value)}
                 className=" flex flex-col items-center justify-center p-[25px] rounded-3xl border border-[#dad8c1] text-[#47473f] cursor-pointer "
               >
+                <input type="file" multiple className="hidden" onChange={uploadPhoto} />
                 <img src={upload} className="w-5 h-5 opacity-70 " alt="" />
                 Upload
-              </button>
+              </label>
             </div>
 
             {/* Description */}
@@ -198,7 +241,9 @@ const MyAccommodations = () => {
                     >
                       <input
                         type="checkbox"
-                        onChange={(e) => setSelectedPerks(e.target.value)}
+                        name={perk.name}
+                        // onChange={(e) => setSelectedPerks(e.target.value)}
+                        onChange={handleCbClick}
                         value={perk.name}
                         className="h-4 w-4  accent-rose-400 "
                       />
