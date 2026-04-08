@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import add from "../assets/images/add.png";
 import upload from "../assets/images/add_photo.png";
@@ -9,12 +9,13 @@ import gym from "../assets/images/gym.png";
 import tv from "../assets/images/tv.png";
 import pets from "../assets/images/pets.png";
 import axios from "axios";
+import PhotoUploader from "../components/PhotoUploader";
 
 const MyAccommodations = () => {
   const { action } = useParams();
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
-  const [photoLink, setPhotoLink] = useState("");
+  // const [photoLink, setPhotoLink] = useState("");
   const [addPhoto, setAddPhoto] = useState([]);
   const [description, setDescription] = useState("");
   const [selectedPerks, setSelectedPerks] = useState([]);
@@ -22,6 +23,7 @@ const MyAccommodations = () => {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [maxGuests, setMaxGuests] = useState(1);
+  const [redirect, setRedirect] = useState('');
 
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -43,17 +45,17 @@ const MyAccommodations = () => {
     );
   }
 
-  async function addPhotoByLink(e) {
-    e.preventDefault();
-    const { data: filename } = await axios.post(`${BASE_URL}/upload-by-link`, {
-      link: photoLink,
-    });
-    setAddPhoto((prev) => {
-      return [...prev, filename];
-    });
-    setPhotoLink("");
-    console.log("clicked!");
-  }
+  // async function addPhotoByLink(e) {
+  //   e.preventDefault();
+  //   const { data: filename } = await axios.post(`${BASE_URL}/upload-by-link`, {
+  //     link: photoLink,
+  //   });
+  //   setAddPhoto((prev) => {
+  //     return [...prev, filename];
+  //   });
+  //   setPhotoLink("");
+  //   console.log("clicked!");
+  // }
 
   function handleCbClick(e) {
     const { checked, name } = e.target;
@@ -64,38 +66,38 @@ const MyAccommodations = () => {
     }
   }
 
-  const uploadPhoto = async (e) => {
-    const files = e.target.files;
-    const data = new FormData();
-    // for(const file of files){
-    //   data.set('photos',file);
-    // }
-    for(let i = 0; i < files.length; i++){
-      data.append('photos', files[i]);
-    }
-    try{
-      const res = await axios.post(`${BASE_URL}/upload`, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    setAddPhoto((prev) => [...prev, ...res.data]);
-    }
-    catch (err) {
-    console.error(err);
-  }
+  // const uploadPhoto = async (e) => {
+  //   const files = e.target.files;
+  //   const data = new FormData();
+  //   // for(const file of files){
+  //   //   data.set('photos',file);
+  //   // }
+  //   for(let i = 0; i < files.length; i++){
+  //     data.append('photos', files[i]);
+  //   }
+  //   try{
+  //     const res = await axios.post(`${BASE_URL}/upload`, data, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //     },
+  //   });
+  //   setAddPhoto((prev) => [...prev, ...res.data]);
+  //   }
+  //   catch (err) {
+  //   console.error(err);
+  // }
     
-    // axios.post(`${BASE_URL}/upload`, data, {
-    //   headers: {'Content-type':'multipart/form-data'}
-    // }).then(response => {
-    //   console.log(response);
-    //   const {data:filenames} = response;
-    //   setAddPhoto(prev => {
-    //     return [...prev, ...filenames];
-    //   });
-    // })
-    // console.log({files});
-  }
+  //   // axios.post(`${BASE_URL}/upload`, data, {
+  //   //   headers: {'Content-type':'multipart/form-data'}
+  //   // }).then(response => {
+  //   //   console.log(response);
+  //   //   const {data:filenames} = response;
+  //   //   setAddPhoto(prev => {
+  //   //     return [...prev, ...filenames];
+  //   //   });
+  //   // })
+  //   // console.log({files});
+  // }
 
 
   const perks = [
@@ -106,6 +108,18 @@ const MyAccommodations = () => {
     { name: "Tv", logo: tv },
     { name: "Pets Allowed", logo: pets },
   ];
+
+  async function addNewPlace(e){
+    e.preventDefault();
+    // const placeData = {title, address, addPhoto, description, perks, extraInfo, checkIn, checkOut, maxGuests};
+    // await axios.post('places', placeData);
+    await axios.post('places', {title, address, addPhoto, description, perks, extraInfo, checkIn, checkOut, maxGuests});
+    setRedirect('/account/places');
+  }
+
+  if (redirect){
+    return <Navigate to={redirect} />
+  }
 
   if (action !== "new") {
     return (
@@ -123,12 +137,12 @@ const MyAccommodations = () => {
 
   if (action === "new") {
     return (
-      <div className="my-10">
+      <div className="my-10" >
         <h1 className="text-center text-2xl font-semibold my-10">
           Add New Place
         </h1>
         <div className="flex justify-center align-middle max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
-          <form className=" w-full mx-auto p-8 border border-gray-300 bg-white rounded-4xl shadow-lg space-y-6">
+          <form className=" w-full mx-auto p-8 border border-gray-300 bg-white rounded-4xl shadow-lg space-y-6" onSubmit={addNewPlace}>
             {/* Title */}
             {/* {preInput('Title', 'Title for your place.')} */}
             <div className="flex flex-col space-y-2">
@@ -172,7 +186,8 @@ const MyAccommodations = () => {
             </div> */}
 
             {/* Photos */}
-            <div className=" relative flex flex-col space-y-2 ">
+            <PhotoUploader addPhoto={addPhoto} onChange={setAddPhoto} />
+            {/* <div className=" relative flex flex-col space-y-2 ">
               <label className="text-sm font-semibold text-gray-700">
                 Photos
               </label>
@@ -193,23 +208,29 @@ const MyAccommodations = () => {
                 </button>
               </div>
             </div>
-            <div className="flex flex-row gap-3 items-center">
+            <div className="flex flex-wrap gap-3 items-center">
               {addPhoto.length > 0 &&
-                addPhoto.map((link, index) => 
-                  <div key={index}>
-                    <img className="w-[102.5px] h-24 rounded-3xl" src={`${BASE_URL}/uploads/`+link} alt="" />
+                addPhoto.map((link, index) => (
+                  <div key={index} className="w-[108px] h-[108px]">
+                    <img
+                      className="w-full h-full object-cover rounded-3xl"
+                      src={`${BASE_URL}/uploads/` + link}
+                      alt=""
+                    />
                   </div>
-                )}
-              <label
-                // value={addPhoto}
-                // onChange={e => setAddPhoto(e.target.value)}
-                className=" flex flex-col items-center justify-center p-[25px] rounded-3xl border border-[#dad8c1] text-[#47473f] cursor-pointer "
-              >
-                <input type="file" multiple className="hidden" onChange={uploadPhoto} />
-                <img src={upload} className="w-5 h-5 opacity-70 " alt="" />
-                Upload
+                ))}
+
+              <label className="flex flex-col items-center justify-center w-[108px] h-[108px] rounded-3xl border border-[#dad8c1] text-[#47473f] cursor-pointer">
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={uploadPhoto}
+                />
+                <img src={upload} className="w-5 h-5 opacity-70" alt="" />
+                <span className="text-xs mt-1">Upload</span>
               </label>
-            </div>
+            </div> */}
 
             {/* Description */}
             <div className="flex flex-col space-y-2">
@@ -274,43 +295,44 @@ const MyAccommodations = () => {
             </div>
 
             {/* Check-in / Check-out / Max Guests */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex flex-col space-y-2 flex-1">
+            <div className="flex flex-col gap-4 md:flex-row">
+              {/* Check In */}
+              <div className="flex flex-col w-full md:w-1/3 space-y-2">
                 <label className="text-sm font-semibold text-gray-700">
                   Check In
                 </label>
                 <input
-                  type="text"
-                  placeholder="14:00"
+                  type="time"
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
-                  className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
 
-              <div className="flex flex-col space-y-2 flex-1">
+              {/* Check Out */}
+              <div className="flex flex-col w-full md:w-1/3 space-y-2">
                 <label className="text-sm font-semibold text-gray-700">
                   Check Out
                 </label>
                 <input
-                  type="text"
-                  placeholder="11:00"
+                  type="time"
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
 
-              <div className="flex flex-col space-y-2 flex-1">
+              {/* Max Guests */}
+              <div className="flex flex-col w-full md:w-1/3 space-y-2">
                 <label className="text-sm font-semibold text-gray-700">
                   Max Guests
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="1"
                   value={maxGuests}
                   onChange={(e) => setMaxGuests(e.target.value)}
-                  className="p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
             </div>
